@@ -1,141 +1,34 @@
 # Sanguine Queen's Blood
 
-- This repository contains the model, view, stub controller, and strategy layer for the game Sanguine.
+This repository contains the model, view, stub controller, and strategy layer for the game Sanguine.
 
-**Core Model (Brief)**
-- Main model code lives in sanguine.model:
-  - SanguineModel: full mutable game model (turns, legality, scoring, game over).
-  - ReadOnlySanguineModel: read-only view exposed to views and strategies.
-  - Card/ SanguineCard: cards with name(), cost(), value(), and a 5x5 tileAt influence grid.
-  - GameTile/ SanguineTile: board tiles that may contain pawns and/ or a card, owned by a Player.
-  - Player: enum RED and BLUE.
-  - CardFileReader: reads decks from files.
-- All mutation is handled by the model, other components only interact through its public interfaces.
+The code lives in the `sanguine` package and is split into the `controller` `model` and `view` sub-packages.
 
-**Moves and User-Player Interface**
-- Moves are represented by sanguine.model.moves.SanguineMove:
-  - void affect(SanguineModel model)
-- Implementations:
-  - PlaceCard(int row, int col, int indexInHand)
-    - Calls model.placeCard(indexInHand, row, col).
-  - Pass
-    - Calls model.pass().
-- A 'user-player' is given a ReadOnlySanguineModel and returns a SanguineMove. The game loop or controller is responsible for validating and applying the move on the real SanguineModel.
+## Controller
 
-**Strategy Layer**
-- All strategies live in sanguine.model.strategy.
-  - SanguineStrategy has one method: SanguineMove chooseMove(ReadOnlySanguineModel model, Player player)
-    - model: read-only game state.
-    - player: player the strategy is playing as.
+The current controller is a stub which prints the inputs from the view to the terminal. Inputs include
+clicked cells and cards, or move attempts. The controller also tells the view to highlight the given
+cell or card that clicked. 
 
-  - FillFirstStrategy
-    - At FillFirstStrategy class
-    - Places the earliest card in the hand on the earliest legal board position (row major). Pass if nothing is legal or the game is over.
-    - Algorithm:
-      1. If model == null or player == null then IllegalArgumentException. 
-      2. If model.isGameOver() then return new Pass(). 
-      3. Get hand = model.getHand(player), board height/width. 
-        - For handIndex from 0 to hand.size()-1:
-              For row from 0 to height-1:
-                For col from 0 to width-1:
-                    If model.canPlayCard(player, handIndex, row, col) then return new PlaceCard(row, col, handIndex).
-      4. If no position works → return new Pass().
+## Model
 
-- MaxRowScoreStrategy
-  - At MaxRowScoreStrategy class
-  - Tries to flip a row in our favor. Only consider rows where we are losing or tied, if placing a card can make our row score strictly greater than the opponent’s, play the first such move. Otherwise pass.
-  - Algorithm:
-    1. Validate model and player (non-null).
-    2. If model.isGameOver() → new Pass(). 
-    3. Let opp = (player == RED ? BLUE : RED). 
-    4. hand = model.getHand(player), get height/width. 
-    5. For each row:
-       - myScore = model.getRowScore(player, row)
-       - oppScore = model.getRowScore(opp, row)
-       - If myScore > oppScore, skip row. 
-       - Else, for each handIndex and col:
-         - If !model.canPlayCard(player, handIndex, row, col) → continue. 
-         - ewMyScore = new myScore + hand.get(handIndex).value()
-         - If newMyScore > oppScore then return new PlaceCard(row, col, handIndex).
-    6. If no row can be flipped then new Pass().
+The model uses the command pattern, with commands implementing the `SanguineMove` interface.
+The model relies on objects implementing the `Card` and `GameTile` interfaces which represent cards and
+cells in the game.
 
-**Logging Mock Model**
-- At MockReadOnlySanguineModel class (in sanguine.model.strategy)
-  - Used only in tests and transcript generation.
-  - Responsibilities:
-    - Implements ReadOnlySanguineModel. 
-    - Stores:
-      - Hands per player (setHand(Player, List<Card>)).     
-      - Row scores per player (setRowScore(Player, row, score)). 
-      - Which (player, indexInHand, row, col) tuples are legal (addLegalMove(...)). 
-      - A gameOver flag (setGameOver(boolean)).
-    - Logs calls to key methods in a StringBuilder:
-      - isGameOver → "isGameOver\n"
-      - getHand → "getHand PLAYER\n"
-      - getRowScore → "getRowScore PLAYER row=ROW\n"
-      - canPlayCard → "canPlayCard PLAYER idx=IDX row=ROW col=COL\n"
-- All other ReadOnlySanguineModel methods throw UnsupportedOperationException.
-- getLog() returns the full log as a string. 
-- This mock is used by the JUnit tests and to produce the required transcripts.
+## View
 
-**Strategy Tests**
-- Located in src/test/java/sanguine:
-  - FillFirstStrategyTest
-  - MaxRowScoreStrategyTest
-- Each test:
-  - Uses MockReadOnlySanguineModel with appropriate dimensions (including a 3x5 configuration). 
-  - Uses small dummy Card classes where only value() matters. 
-  - Configures:
-    - RED’s hand via setHand.
-    - Row scores via setRowScore (for MaxRowScoreStrategy). 
-    - Legal moves via addLegalMove.
-- Tests cover:
-- Correct move when a legal move exists. 
-- Pass when no legal move / no row can be flipped. 
-- Order of calls via mock.getLog() (probe order and scoring). 
+The view uses the Swing library to render game states and take in user inputs. The codebase includes
+the abstract classes `JTilePanel` and `JCardPanel` which can be extended to customize the look of the 
+game. It also has event listener functionality to allow user input logic to be delegated to the controller.
+Listeners (including the controller) must implement the `SanguineEventListener` interface. 
 
-**Strategy Transcripts**
-- The two plain-text files showing the strategies’ behavior on the 3x5 starting board:
-  - strategy-transcript-first.txt: transcript for FillFirstStrategy. 
-  - strategy-transcript-score.txt: transcript for MaxRowScoreStrategy.
-- They were generated by running the strategies against a suitably configured MockReadOnlySanguineModel and copying the 
-log lines starting from: isGameOver, getHand RED ...  into the corresponding .txt files.
-- Each transcript shows the strategy walking through all relevant moves until selecting its final choice.
+## Main
 
-**GUI View and Stub Controller**
-- View
-  - Located in sanguine.view:
-    - SanguineEventListener: the listener interface for user interactions with the view (click tile, click card, pass, placeCard)
-    - SanguineEventPublisher: the publisher interface for user interactions. Allows registration of users
-    - SanguineView: high level view interface (show window, click card/ tile, refresh, query clicked card/ tile).
-    - BasicSanguineView: Swing implementation:
-      - Displays the board using JTilePanel subclasses:
-        - CardJtilePanel, PawnsJtilePanel, EmptyJtilePanel.
-      - Displays the player’s hand using JCardPanel:
-        - RedJCardPanel, BlueJCardPanel.
-      - Shows row scores and highlights the row winner. 
-      - Keyboard shortcuts:
-        - 'p' → pass() event.
-        - 'c' → placeCard() event.
-- Stub Controller
-  - Located in sanguine.controller:
-    - StubController implements SanguineEventListener:
-      - Forwards card/tile clicks to the view (clickCard, clickTile) and prints to stdout. 
-      - placeCard() and pass() currently just print messages (no game logic yet).
+This repository includes a main function that constructs an example game using the stub controller for 
+testing purposes.
 
-- Main Entry Point
-  - Location = sanguine.SanguineGame Class
-  - Creates:
-    - A BasicSanguine model (using ./docs/example.deck for both players). 
-    - Two BasicSanguineView instances (RED and BLUE). 
-    - One StubController per view. 
-    - Run SanguineGame.main() to open both GUI windows. 
+## Deck Construction
 
-**How to Run**
-- Run tests:
-  - FillFirstStrategyTest 
-  - MaxRowScoreStrategyTest
-- Transcripts:
-  - Ensure strategy-transcript-first.txt and strategy-transcript-score.txt are present and contain the logs produced by the strategies on the 3x5 starting board.
-- GUI demonstration:
-  - Run sanguine.SanguineGame.main().
+Decks in the game are read from files. Example decks can be found in the `docs` directory, and information
+about deck formatting can be found in the documentation for the `CardFileReader` class.
