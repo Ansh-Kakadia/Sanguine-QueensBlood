@@ -15,7 +15,7 @@ import sanguine.model.SanguineCard;
 import sanguine.model.SanguineTile;
 
 /**
- * a suite of tests for the {@link SanguineTile} class.
+ * Tests for the {@link SanguineTile} class.
  */
 public class SanguineTileTest {
 
@@ -164,7 +164,6 @@ public class SanguineTileTest {
     ), Player.RED);
     t.addPawn(Player.RED);
   }
-
 
   @Test
   public void addCardWithOwner_setsHasCard_getCard_cardOwner() {

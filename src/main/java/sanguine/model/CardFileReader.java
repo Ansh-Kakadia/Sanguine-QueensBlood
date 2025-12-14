@@ -71,8 +71,6 @@ public final class CardFileReader {
     return cards;
   }
 
-  // given the lines and start of the next line, returns the first card represented by the lines
-  // starting at {@code firstLine} (0-indexed).
   private static Card getCard(String[] lines, int firstLine) throws IOException {
     if (firstLine + 5 >= lines.length) {
       throw new IllegalArgumentException("Invalid File Size");
@@ -88,7 +86,7 @@ public final class CardFileReader {
     List<List<InfluenceGridTile>> grid = getGrid(lines, firstLine + 1);
 
     try {
-      return new SanguineCard(name, cost, value, grid); // create card
+      return new SanguineCard(name, cost, value, grid);
     } catch (IllegalArgumentException e) {
       throw new IllegalArgumentException(e);
     }

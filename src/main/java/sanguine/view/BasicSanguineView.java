@@ -1,5 +1,6 @@
 package sanguine.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,11 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import sanguine.model.Card;
 import sanguine.model.Player;
 import sanguine.model.ReadOnlySanguineModel;
+
+
 
 /**
  * a view for a game of Sanguine using the {@link javax.swing} library.
@@ -31,10 +35,7 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
   private final JPanel boardPanel;
   private final Player player;
   private Optional<Card> clickedCard;
-  // integer arrays are always of structure {row, column}
   private Optional<int[]> clickedTile;
-  //.get(row, column) to get tiles
-
 
   /**
    * constructs a view for the given {@link ReadOnlySanguineModel}.
@@ -67,9 +68,9 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
     this.boardPanel = new JPanel(new GridLayout(model.height(), 2 + model.width()));
 
     JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, boardPanel, cardsPanel);
-    splitPane.setResizeWeight(0.75); // Board gets 75% of space
-    splitPane.setDividerLocation(0.75); // Initial divider position
-    add(splitPane, java.awt.BorderLayout.CENTER);
+    splitPane.setResizeWeight(0.75);
+    splitPane.setDividerLocation(0.75);
+    add(splitPane, BorderLayout.CENTER);
 
     addKeyListener(new KeyAdapter() {
       @Override
@@ -169,16 +170,17 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
       c = Color.LIGHT_GRAY;
     } else {
       c = switch (player) {
-        case Player.RED -> Color.RED;
-        case Player.BLUE -> Color.BLUE;
+        case RED -> Color.RED;
+        case BLUE -> Color.BLUE;
       };
     }
+
     JPanel scorePanel = new JPanel();
     scorePanel.setBackground(c);
 
     int score = model.getRowScore(player, row);
     JLabel scoreLabel = new JLabel(String.valueOf(score));
-    scoreLabel.setFont(new Font("Arial", java.awt.Font.BOLD, 24)); // Bigger font!
+    scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
     scoreLabel.setForeground(Color.BLACK);
     scorePanel.add(scoreLabel);
 
@@ -196,6 +198,8 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
   @Override
   public void showImage() {
     setVisible(true);
+    setFocusable(true);
+    requestFocusInWindow();
   }
 
   @Override
@@ -204,7 +208,6 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
     refreshHand();
     revalidate();
     repaint();
-    pack();
   }
 
   @Override
@@ -231,6 +234,38 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
       throw new IllegalStateException("no clicked tile");
     }
     return clickedTile.get();
+  }
+
+  @Override
+  public void promptTurn() {
+    JOptionPane.showMessageDialog(
+        this,
+        "Your turn is up!",
+        "Turn Up",
+        JOptionPane.PLAIN_MESSAGE
+    );
+  }
+
+  @Override
+  public void displayGameEnd() {
+    Optional<Player> winner = model.getWinning();
+    String winningString = winner.map(value -> value + " wins").orElse("tie game");
+    JOptionPane.showMessageDialog(
+        this,
+        "Game Over, " + winningString + ", Score: " + model.getScore(),
+        "Game Over",
+        JOptionPane.INFORMATION_MESSAGE
+    );
+  }
+
+  @Override
+  public void alertIllegalMove(String reason) {
+    JOptionPane.showMessageDialog(
+        this,
+        reason,
+        "Illegal Move",
+        JOptionPane.INFORMATION_MESSAGE
+    );
   }
 
 
@@ -298,4 +333,6 @@ public class BasicSanguineView extends JFrame implements SanguineView, SanguineE
   public void pass() {
     listeners.forEach(SanguineEventListener::pass);
   }
+
+
 }

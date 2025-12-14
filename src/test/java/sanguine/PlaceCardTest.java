@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
+import sanguine.controller.GameStateListener;
 import sanguine.model.Card;
 import sanguine.model.InfluenceGridTile;
 import sanguine.model.Player;
@@ -61,8 +62,6 @@ public class PlaceCardTest {
     Card c = trivialCard();
     new PlaceCard(0, 0, 0).affect(m);
   }
-
-
 
   private static class FakeModel implements SanguineModel {
     int lastIndex;
@@ -176,6 +175,10 @@ public class PlaceCardTest {
     @Override
     public int getMaxHandSize() {
       return 0;
+    }
+
+    @Override
+    public void register(GameStateListener listener) {
     }
   }
 }

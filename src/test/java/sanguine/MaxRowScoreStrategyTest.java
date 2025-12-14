@@ -17,9 +17,6 @@ import sanguine.model.strategy.MockReadOnlySanguineModel;
  */
 public class MaxRowScoreStrategyTest {
 
-  /**
-   * Tiny dummy Card implementation; strategies only care about value().
-   */
   private static class DummyCard implements Card {
 
     private final String name;

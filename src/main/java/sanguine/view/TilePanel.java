@@ -9,6 +9,4 @@ import sanguine.model.GameTile;
  */
 public interface TilePanel extends SanguineEventSender, ClickSwitch {
 
-  // Maybe more implementation with controller coming up
-
 }

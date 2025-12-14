@@ -9,7 +9,7 @@ import sanguine.model.InfluenceGridTile;
 import sanguine.model.SanguineCard;
 
 /**
- * a suite of tests for the constructor of the {@link SanguineCard} class. for tests of the
+ * Tests for the constructor of the {@link SanguineCard} class. for tests of the
  * observers of the {@link SanguineCard} class, see {@link CardFileReaderTests}.
  */
 public class SanguineCardConstructorTests {
@@ -119,8 +119,7 @@ public class SanguineCardConstructorTests {
   @Test(expected = IllegalArgumentException.class)
   public void testExtraPlacedThrowsException() {
     init();
-    System.out.println(validGrid);
-    validGrid.get(0).set(0, InfluenceGridTile.PLACED);
+    validGrid.getFirst().set(0, InfluenceGridTile.PLACED);
     new SanguineCard("hello", 1, 2, validGrid);
   }
 }

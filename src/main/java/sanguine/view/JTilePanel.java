@@ -94,5 +94,4 @@ public abstract class JTilePanel extends JPanel implements TilePanel {
       listener.tileClicked(row, col);
     }
   }
-
 }

@@ -66,4 +66,21 @@ public interface SanguineView extends SanguineEventSender {
    * @throws IllegalStateException is there is no clicked tile
    */
   int[] clickedTile();
+
+  /**
+   * prompts this view that it's player's turn is up.
+   */
+  void promptTurn();
+
+  /**
+   * visualizes the end of a game of Sanguine.
+   */
+  void displayGameEnd();
+
+  /**
+   * alerts the user they made an illegal move.
+   *
+   * @param reason the reason the move is illegal
+   */
+  void alertIllegalMove(String reason);
 }

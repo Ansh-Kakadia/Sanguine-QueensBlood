@@ -1,6 +1,5 @@
 package sanguine.model.moves;
 
-import sanguine.model.Card;
 import sanguine.model.SanguineModel;
 
 /**
@@ -44,6 +43,15 @@ public class PlaceCard implements SanguineMove {
     } catch (IllegalStateException e) {
       throw new IllegalArgumentException("Illegal move");
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof PlaceCard placeCard)) {
+      return false;
+    }
+    return this.row == placeCard.row && this.col == placeCard.col
+        && this.indexInHand == placeCard.indexInHand;
   }
 
 }

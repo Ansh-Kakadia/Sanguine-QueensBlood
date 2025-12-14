@@ -44,11 +44,10 @@ public class PawnsJtilePanel extends JTilePanel {
 
   @Override
   protected void paintComponent(Graphics g) {
-    super.paintComponent(g); // Paint the background color
-    drawPawns(g); // Draw the pawns
+    super.paintComponent(g);
+    drawPawns(g);
   }
 
-  // Draws pawns as white circles
   private void drawPawns(Graphics g) {
     g.setColor(Color.WHITE);
 

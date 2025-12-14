@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Stack;
+import sanguine.controller.GameStateListener;
 import sanguine.model.moves.SanguineMove;
 
 
@@ -38,12 +39,13 @@ public class BasicSanguine implements SanguineModel {
   private final Map<Player, List<Card>> hands;
   // INVARIANT: Lists in value set have maximum size maxHandSize
 
+  private final List<GameStateListener> listeners;
   private final List<List<GameTile>> grid;
   private final Stack<Card> redDeck;
   private final Stack<Card> blueDeck;
   private Player turn;
   private int consecutivePasses;
-  private boolean drewThisTurn;
+  private boolean started = false;
 
   /**
    * constructs a {@link BasicSanguine} with the specified parameters. Deck formats are specified in
@@ -104,7 +106,7 @@ public class BasicSanguine implements SanguineModel {
     turn = Player.RED;
     consecutivePasses = 0;
     dealOutCards();
-    drewThisTurn = false;
+    listeners = new ArrayList<>();
   }
 
   /**
@@ -125,7 +127,6 @@ public class BasicSanguine implements SanguineModel {
     this(width, height, handSize, redDeckFilePath, blueDeckFilePath, true, null);
   }
 
-  // throws IllegalArgumentException if the size is invaild
   private static void throwExceptionIfInvalidGridSize(int width, int height) {
     if (height <= 0) {
       throw new IllegalArgumentException("width less than 1");
@@ -138,7 +139,6 @@ public class BasicSanguine implements SanguineModel {
     }
   }
 
-  // puts handSize number of cards from the decks to the hands of the players.
   private void dealOutCards() {
     for (int i = 0; i < maxHandSize; i++) {
       dealCardIfAllowed(Player.RED);
@@ -232,11 +232,18 @@ public class BasicSanguine implements SanguineModel {
     if (isGameOver()) {
       throw new IllegalStateException("game over");
     }
-    startTurnDrawIfNeeded();
+
     incrementTurn();
-    drewThisTurn = false;
     consecutivePasses += 1;
+
+    if (!isGameOver()) {
+      dealCardIfAllowed(turn);
+    }
+
+    alertTurnListenersIfGameIsntOver();
+    alertGameOverListenersIfNeeded();
   }
+
 
   @Override
   public void placeCard(int indexInHand, int row, int col)
@@ -254,7 +261,7 @@ public class BasicSanguine implements SanguineModel {
     if (isGameOver()) {
       throw new IllegalStateException("game over");
     }
-    startTurnDrawIfNeeded();
+
     GameTile tile = grid.get(row).get(col);
 
     if (tile.hasCard()) {
@@ -272,8 +279,15 @@ public class BasicSanguine implements SanguineModel {
     applyInfluence(card, row, col, turn);
     hands.get(turn).remove(indexInHand);
     consecutivePasses = 0;
+
     incrementTurn();
-    drewThisTurn = false;
+
+    if (!isGameOver()) {
+      dealCardIfAllowed(turn);
+    }
+
+    alertTurnListenersIfGameIsntOver();
+    alertGameOverListenersIfNeeded();
   }
 
   @Override
@@ -293,7 +307,6 @@ public class BasicSanguine implements SanguineModel {
     if (isGameOver()) {
       throw new IllegalStateException("Game over");
     }
-    startTurnDrawIfNeeded();
     return turn;
   }
 
@@ -544,11 +557,51 @@ public class BasicSanguine implements SanguineModel {
     }
   }
 
-  private void startTurnDrawIfNeeded() {
-    if (!drewThisTurn) {
-      dealCardIfAllowed(turn);
-      drewThisTurn = true;
+  /**
+   * alerts the {@link GameStateListener}s that the turn has switched to the current {@code turn} if
+   * the game isn't over.
+   */
+  protected void alertTurnListenersIfGameIsntOver() {
+    if (!isGameOver()) {
+      listeners.forEach(listener -> listener.alertTurn(turn));
     }
+  }
+
+  @Override
+  public void register(GameStateListener listener) {
+    if (listener == null) {
+      throw new IllegalArgumentException("listener is null");
+    }
+    listeners.add(listener);
+  }
+
+  /**
+   * alerts {@link GameStateListener}s that the game is over, with
+   * {@link GameStateListener#gameOver()}, if the game is over.
+   */
+  protected void alertGameOverListenersIfNeeded() {
+    if (isGameOver()) {
+      listeners.forEach(listener -> listener.gameOver());
+    }
+  }
+
+  @Override
+  public void startGame() throws IllegalStateException {
+    if (started) {
+      throw new IllegalStateException("Game already started");
+    }
+    started = true;
+
+    alertGameStateListenersStartGame();
+    alertTurnListenersIfGameIsntOver();
+  }
+
+  /**
+   * alerts all {@link GameStateListener}s registered to this model that the game has started
+   * through the {@link GameStateListener#startGame()} method.
+   */
+  protected void alertGameStateListenersStartGame() {
+    listeners.forEach(listener -> listener.startGame());
   }
 
 }
