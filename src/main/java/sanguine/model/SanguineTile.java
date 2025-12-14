@@ -8,7 +8,6 @@ import java.util.Optional;
 public class SanguineTile implements GameTile {
 
   private int pawns;
-  // INVARIANT: pawns <= 3 is always true
 
   private Optional<Card> card;
   private Optional<Player> owner;
@@ -73,7 +72,6 @@ public class SanguineTile implements GameTile {
     if (owner == null) {
       throw new IllegalArgumentException("given null argument");
     }
-    // checks if owner is different from owner
     if (this.owner.stream().anyMatch(player -> player != owner)) {
       pawns = 1;
     } else {

@@ -20,10 +20,6 @@ import sanguine.model.strategy.MockReadOnlySanguineModel;
  */
 public class FillFirstStrategyTest {
 
-  /**
-   * A simple mock implementation of ReadOnlySanguineModel used to test
-   * the order in which FillFirstStrategy probes board positions.
-   */
   private static class MockModelForFillFirst implements ReadOnlySanguineModel {
 
     private final int width;
@@ -35,18 +31,6 @@ public class FillFirstStrategyTest {
     private final int trueCol;
     private final StringBuilder log;
 
-    /**
-     * Creates a mock model.
-     *
-     * @param width          board width
-     * @param height         board height
-     * @param handSize       number of cards in the player's hand
-     * @param expectedPlayer player the strategy will use
-     * @param trueHandIndex  hand index where canPlayCard should return true
-     * @param trueRow        row where canPlayCard should return true
-     * @param trueCol        col where canPlayCard should return true
-     *                        (if any of these are negative, canPlayCard always returns false)
-     */
     MockModelForFillFirst(int width,
                           int height,
                           int handSize,
@@ -120,8 +104,6 @@ public class FillFirstStrategyTest {
           && col == this.trueCol;
     }
 
-    // --- Unused methods for this test: just throw to catch accidental use ---
-
     @Override
     public Card cardAt(int row, int col) {
       throw new UnsupportedOperationException("cardAt not used in this test");
@@ -183,10 +165,6 @@ public class FillFirstStrategyTest {
     }
   }
 
-  /**
-   * A tiny dummy Card implementation just to satisfy the type;
-   * strategy code never inspects these cards.
-   */
   private static class DummyCard implements Card {
 
     private final String name;

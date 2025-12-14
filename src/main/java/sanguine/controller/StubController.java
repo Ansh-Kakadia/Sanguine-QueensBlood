@@ -1,9 +1,7 @@
 package sanguine.controller;
 
-import java.util.List;
 import sanguine.model.Card;
 import sanguine.model.SanguineModel;
-import sanguine.view.JTilePanel;
 import sanguine.view.SanguineEventListener;
 import sanguine.view.SanguineView;
 

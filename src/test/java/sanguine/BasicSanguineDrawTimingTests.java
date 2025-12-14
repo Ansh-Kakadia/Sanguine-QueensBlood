@@ -3,7 +3,6 @@ package sanguine;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
@@ -31,9 +30,9 @@ public class BasicSanguineDrawTimingTests {
         + "XXXXX\n";
   }
 
-  private static String repeatSimpleCards(int n) {
+  private static String repeatSimpleCards() {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < 10; i++) {
       sb.append(simpleCenterCardBlock("C" + i));
     }
     return sb.toString();
@@ -41,15 +40,15 @@ public class BasicSanguineDrawTimingTests {
 
   private static Path writeDeck(String content) throws IOException {
     Path p = Files.createTempFile("deck_", ".config");
-    Files.write(p, content.getBytes(StandardCharsets.UTF_8));
+    Files.writeString(p, content);
     p.toFile().deleteOnExit();
     return p;
   }
 
   @Test
   public void pass_triggersNextPlayerDraw_whenUnderCap() throws Exception {
-    Path deckR = writeDeck(repeatSimpleCards(10));
-    Path deckB = writeDeck(repeatSimpleCards(10));
+    Path deckR = writeDeck(repeatSimpleCards());
+    Path deckB = writeDeck(repeatSimpleCards());
     BasicSanguine m = new BasicSanguine(3, 3, 1, deckR.toString(),
         deckB.toString());
 
@@ -70,8 +69,8 @@ public class BasicSanguineDrawTimingTests {
 
   @Test
   public void place_doesNotDrawForCurrentPlayerAtEnd() throws Exception {
-    Path deckR = writeDeck(repeatSimpleCards(10));
-    Path deckB = writeDeck(repeatSimpleCards(10));
+    Path deckR = writeDeck(repeatSimpleCards());
+    Path deckB = writeDeck(repeatSimpleCards());
     BasicSanguine m = new BasicSanguine(3, 3, 1, deckR.toString(),
         deckB.toString());
 
@@ -86,8 +85,8 @@ public class BasicSanguineDrawTimingTests {
 
   @Test
   public void getTurn_doesNotDoubleDrawInSameTurn() throws Exception {
-    Path deckR = writeDeck(repeatSimpleCards(10));
-    Path deckB = writeDeck(repeatSimpleCards(10));
+    Path deckR = writeDeck(repeatSimpleCards());
+    Path deckB = writeDeck(repeatSimpleCards());
     BasicSanguine m = new BasicSanguine(3, 3, 1, deckR.toString(),
         deckB.toString());
 

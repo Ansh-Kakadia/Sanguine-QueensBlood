@@ -12,7 +12,7 @@ import sanguine.model.InfluenceGridTile;
 import sanguine.model.SanguineCard;
 
 /**
- * a suite of tests of the {@link Card} class.
+ * Tests of the {@link Card} class.
  */
 public class SanguineCardTest {
 
@@ -86,8 +86,8 @@ public class SanguineCardTest {
 
     Card c = new SanguineCard("Plus", 2, 7, mutableOuter);
 
-    mutableOuter.get(1).set(1, InfluenceGridTile.UNAFFECTED); // was AFFECTED
-    mutableOuter.get(2).set(2, InfluenceGridTile.UNAFFECTED); // was PLACED
+    mutableOuter.get(1).set(1, InfluenceGridTile.UNAFFECTED);
+    mutableOuter.get(2).set(2, InfluenceGridTile.UNAFFECTED);
 
     assertEquals(InfluenceGridTile.AFFECTED, c.tileAt(1, 1));
     assertEquals(InfluenceGridTile.PLACED, c.tileAt(2, 2));

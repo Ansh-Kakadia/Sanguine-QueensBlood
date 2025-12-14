@@ -19,4 +19,9 @@ public class Pass implements SanguineMove {
       throw new IllegalArgumentException("cannot pass");
     }
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj instanceof Pass;
+  }
 }

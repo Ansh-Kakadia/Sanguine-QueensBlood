@@ -9,7 +9,7 @@ import sanguine.model.moves.SanguineMove;
  * implementing {@link SanguineMove} with the {@code makeMove} method. Coordinates are represented
  * as (row,col), being 0-indexed from the top and left respectively.
  */
-public interface SanguineModel extends ReadOnlySanguineModel {
+public interface SanguineModel extends ReadOnlySanguineModel, GameStateAlerter {
 
   /**
    * passes the current turn.
@@ -41,4 +41,14 @@ public interface SanguineModel extends ReadOnlySanguineModel {
    */
   void makeTurn(SanguineMove move) throws IllegalArgumentException, IllegalStateException;
 
+  /**
+   * Starts the game and triggers any initial model status notifications.
+   * This should be called once after all views/ controllers have registered as listeners.
+   * Default implementation does nothing, but concrete models may override.
+   *
+   * @throws IllegalStateException if the game has already been started or cannot be started
+   */
+  default void startGame() throws IllegalStateException{
+
+  }
 }

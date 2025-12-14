@@ -76,7 +76,7 @@ public final class StrategyTranscriptGenerator {
   }
 
   /**
-   * Tiny Card implementation for transcripts; strategies only care about value().
+   * Tiny Card implementation for transcripts, strategies only care about value().
    */
   private static final class TranscriptCard implements Card {
 
